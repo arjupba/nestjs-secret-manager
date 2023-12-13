@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
-import { AWSSecretsManagerModule } from 'nestjs-aws-secrets-manager';
+import { AWSSecretsManagerModule } from 'nestjs-secret-manager';
 
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
@@ -14,13 +14,14 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     AWSSecretsManagerModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         secretsManager: new SecretsManagerClient({
-          region: configService.get('AWS_REGION')
+          region: configService.get('AWS_REGION'),
         }),
         isSetToEnv: true, // set all secrets to env variables which will be available in process.env or @nest/config module
-        secretsSource: [
-          configService.get('AWS_SECRET_ID') // name or array of secret names
-        ],
-        isDebug: configService.get('NODE_ENV') === 'development'
+        secretsSource: {
+          secret1: configService.get('AWS_SECRET_ID_1'), // name or array of secret names
+          secret2: configService.get('AWS_SECRET_ID_2'), // name or array of secret names
+        },
+        isDebug: configService.get('NODE_ENV') === 'development',
       }),
       inject: [ConfigService],
     }),
@@ -28,4 +29,4 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

@@ -3,12 +3,13 @@ import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AppService {
+  constructor(private readonly configService: ConfigService) {}
 
-  constructor(private readonly configService: ConfigService) { }
+  getHello1(): string {
+    return JSON.parse(this.configService.get('secret1'));
+  }
 
-  getHello(): string {
-    return JSON.stringify({
-      RANDOM: this.configService.get('RANDOM'), // check if the environment variable is set or not by nestjs-aws-secrets-manager module
-    });
+  getHello2(): string {
+    return JSON.parse(this.configService.get('secret2'));
   }
 }
