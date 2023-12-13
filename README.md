@@ -7,21 +7,22 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/nestjs-aws-secrets-manager"><img alt="NPM version" src="https://img.shields.io/npm/v/nestjs-aws-secrets-manager.svg" /></a>
-  <a href="https://www.npmjs.com/package/nestjs-aws-secrets-manager"><img alt="NPM downloads" src="https://img.shields.io/npm/dw/nestjs-aws-secrets-manager.svg" /></a>
-  <a href="https://github.com/razzkumar/nestjs-aws-secrets-manager/pulse"><img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/m/razzkumar/nestjs-aws-secrets-manager"></a>
-  <a href="https://github.com/razzkumar/nestjs-aws-secrets-manager/graphs/contributors" alt="Contributors"><img src="https://img.shields.io/github/contributors/razzkumar/nestjs-aws-secrets-manager" /></a>
-  <!-- <a href="https://paypal.me/razzkumar" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a> -->
+  <a href="https://www.npmjs.com/package/nestjs-secret-manager"><img alt="NPM version" src="https://img.shields.io/npm/v/nestjs-secret-manager.svg" /></a>
+  <a href="https://www.npmjs.com/package/nestjs-secret-manager"><img alt="NPM downloads" src="https://img.shields.io/npm/dw/nestjs-secret-manager.svg" /></a>
+  <a href="https://github.com/arjupba/nestjs-secret-manager/pulse"><img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/m/arjupba/nestjs-secret-manager"></a>
+  <a href="https://github.com/arjupba/nestjs-secret-manager/graphs/contributors" alt="Contributors"><img src="https://img.shields.io/github/contributors/arjupba/nestjs-secret-manager" /></a>
+  <!-- <a href="https://paypal.me/arjupba" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a> -->
 </p>
 
+This module is forked from `https://github.com/razzkumar/nestjs-aws-secrets-manager`. Kudos to [razzkumar](mailto::razzkumar.dev@gmail.com)
 
 ## Installation
 
 ```bash
-npm i nestjs-aws-secrets-manager @aws-sdk/client-secrets-manager
+npm i nestjs-secret-manager @aws-sdk/client-secrets-manager
 ```
 
-Having troubles configuring `nestjs-aws-secrets-manager`? Clone this repository and `cd` in a sample:
+Having troubles configuring `nestjs-secret-manager`? Clone this repository and `cd` in a sample:
 
 ```bash
 cd samples/quick-start
@@ -31,13 +32,16 @@ npm run start:dev
 
 ## Quick start
 
-Import `AWSSecretsManagerModule` into the root `AppModule` and use the `forRoot()` method to configure it. This method accepts the object as [AWSSecretsManagerModuleOptions](https://github.com/razzkumar/nestjs-aws-secrets-manager#options), you can also checkout [samples](https://github.com/razzkumar/nestjs-aws-secrets-manager/tree/main/samples)
+Import `AWSSecretsManagerModule` into the root `AppModule` and use the `forRoot()` method to configure it. This method accepts the object as [AWSSecretsManagerModuleOptions](https://github.com/arjupba/nestjs-secret-manager#options), you can also checkout [samples](https://github.com/arjupba/nestjs-secret-manager/tree/main/samples)
 
 ```typescript
 import { Module } from '@nestjs/common';
 import { SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
 
-import { AWSSecretsManagerModule, AWSSecretsManagerModuleOptions } from 'nestjs-aws-secrets-manager';
+import {
+  AWSSecretsManagerModule,
+  AWSSecretsManagerModuleOptions,
+} from 'nestjs-secret-manager';
 
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
@@ -45,21 +49,19 @@ import { AWSDBCredentialsService } from './aws-secrets.service';
 
 const AWSSecretsManagerProps: AWSSecretsManagerModuleOptions = {
   secretsManager: new SecretsManagerClient({
-    region: "ap-south-1"
+    region: 'ap-south-1',
   }),
 };
-
 
 @Module({
   imports: [
     AWSSecretsManagerModule.forRoot(AWSSecretsManagerProps),
-    AWSDBCredentialsService
+    AWSDBCredentialsService,
   ],
   controllers: [AppController],
   providers: [AppService, AWSDBCredentialsService],
 })
-export class AppModule { }
-
+export class AppModule {}
 ```
 
 ### Create the Secrets Manager Service
@@ -68,7 +70,7 @@ Now we have `getSecretsByID` method on `AWSSecretsService` from we can retrive a
 
 ```typescript
 import { Injectable } from '@nestjs/common';
-import { AWSSecretsService } from 'nestjs-aws-secrets-manager';
+import { AWSSecretsService } from 'nestjs-secret-manager';
 
 interface DBCredentials {
   host: string;
@@ -80,13 +82,14 @@ interface DBCredentials {
 
 @Injectable()
 export class AWSDBCredentialsService {
-  constructor(private readonly secretsRetrieverService: AWSSecretsService) { }
+  constructor(private readonly secretsRetrieverService: AWSSecretsService) {}
 
   async getDBCredentials(): Promise<DBCredentials> {
-    return await this.secretsRetrieverService.getSecretsByID<DBCredentials>('db-credentials'); // where db-credentials is the secret id
+    return await this.secretsRetrieverService.getSecretsByID<DBCredentials>(
+      'db-credentials',
+    ); // where db-credentials is the secret id
   }
 }
-
 ```
 
 ### Set process env variables from aws secrets manager
@@ -96,29 +99,28 @@ We also can able to set value on process on starting, which allows us to retrive
 ```typescript
 import { Module } from '@nestjs/common';
 import { SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
-import { AWSSecretsManagerModule, AWSSecretsManagerModuleOptions, } from 'nestjs-aws-secrets-manager';
+import {
+  AWSSecretsManagerModule,
+  AWSSecretsManagerModuleOptions,
+} from 'nestjs-secret-manager';
 
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
 
 const AWSSecretsManagerProps: AWSSecretsManagerModuleOptions = {
   secretsManager: new SecretsManagerClient({
-    region: "ap-south-1"
+    region: 'ap-south-1',
   }),
   isSetToEnv: true, // set all secrets to env variables which will be available in process.env or @nest/config module
-  secretsSource: "test/sm" // OR array or secrets name or ARN  [ "db/prod/config" ,"app/prod/config"],
+  secretsSource: { secret1: 'test/sm1', secret2: 'test/sm2' }, // Object with secrets name or ARN as values and required key in environment variable
 };
 
-
 @Module({
-  imports: [
-    AWSSecretsManagerModule.forRoot(AWSSecretsManagerProps)
-  ],
+  imports: [AWSSecretsManagerModule.forRoot(AWSSecretsManagerProps)],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
-
+export class AppModule {}
 ```
 
 Afterward, Aws secrets from provided `secretsSource` can be access via `process.env` for `@nestjs/config` module
@@ -126,13 +128,12 @@ Afterward, Aws secrets from provided `secretsSource` can be access via `process.
 ## Async configuration
 
 > **Caveats**: because the way Nest works, you can't inject dependencies exported from the root module itself (using `exports`). If you use `forRootAsync()` and need to inject a service, that service must be either imported using the `imports` options or exported from a [global module](https://docs.nestjs.com/modules#global-modules).
-Maybe you need to asynchronously pass your module options, for example when you need a configuration service. In such case, use the `forRootAsync()` method, returning an options object from the `useFactory` method:
+> Maybe you need to asynchronously pass your module options, for example when you need a configuration service. In such case, use the `forRootAsync()` method, returning an options object from the `useFactory` method:
 
 ```typescript
-
 import { Module } from '@nestjs/common';
 import { SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
-import { AWSSecretsManagerModule } from 'nestjs-aws-secrets-manager';
+import { AWSSecretsManagerModule } from 'nestjs-secret-manager';
 
 import { AppService } from './app.service';
 import { AppController } from './app.controller';
@@ -146,13 +147,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     AWSSecretsManagerModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         secretsManager: new SecretsManagerClient({
-          region: configService.get('AWS_REGION')
+          region: configService.get('AWS_REGION'),
         }),
         isSetToEnv: true, // set all secrets to env variables which will be available in process.env or @nest/config module
-        secretsSource: [
-          configService.get('AWS_SECRET_ID') // name or array of secret names
-        ],
-        isDebug: configService.get('NODE_ENV') === 'development'
+        secretsSource: { secret1: 'test/secretId1', secret2: 'test/secretId2' },
+        isDebug: configService.get('NODE_ENV') === 'development',
       }),
       inject: [ConfigService],
     }),
@@ -160,11 +159,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}
 ```
 
 The factory might be async, can inject dependencies with `inject` option and import other modules using the `imports` option.
-
 
 ### Options
 
@@ -178,11 +176,11 @@ export interface AWSSecretsManagerModuleOptions {
   isDebug?: boolean;
 }
 ```
-which is available for import from `nestjs-aws-secrets-manager` module
+
+which is available for import from `nestjs-secret-manager` module
 
 ```typescript
-import { AWSSecretsManagerModuleOptions, } from 'nestjs-aws-secrets-manager';
-
+import { AWSSecretsManagerModuleOptions } from 'nestjs-secret-manager';
 ```
 
 ## Contributing
@@ -190,7 +188,7 @@ import { AWSSecretsManagerModuleOptions, } from 'nestjs-aws-secrets-manager';
 New features and bugfixes are always welcome! In order to contribute to this project, follow a few easy steps:
 
 <!-- <p align="center"> -->
-<!--   <a href="https://paypal.me/razzkumar" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a> -->
+<!--   <a href="https://paypal.me/arjupba" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a> -->
 <!-- </p> -->
 
 1. [Fork](https://help.github.com/en/github/getting-started-with-github/fork-a-repo) this repository and clone it on your machine
@@ -201,8 +199,9 @@ New features and bugfixes are always welcome! In order to contribute to this pro
 
 ## Stay in touch
 
+- Modified - [arjupba](mailto::arjupba@gmail.com)
 - Author - [razzkumar](mailto::razzkumar.dev@gmail.com)
 
 ## License
 
-nestjs-aws-secrets-manager is [MIT licensed](LICENSE).
+nestjs-secret-manager is [MIT licensed](LICENSE).

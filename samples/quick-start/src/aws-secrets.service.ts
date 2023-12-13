@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { AWSSecretsService } from 'nestjs-aws-secrets-manager';
-
+import { AWSSecretsService } from 'nestjs-secret-manager';
 
 interface DBCredentials {
   host: string;
@@ -12,9 +11,11 @@ interface DBCredentials {
 
 @Injectable()
 export class AWSDBCredentialsService {
-  constructor(private readonly secretsRetrieverService: AWSSecretsService) { }
+  constructor(private readonly secretsRetrieverService: AWSSecretsService) {}
 
   async getDBCredentials(): Promise<DBCredentials> {
-    return await this.secretsRetrieverService.getSecretsByID<DBCredentials>('db-credentials'); // where db-credentials is the secret id
+    return await this.secretsRetrieverService.getSecretsByID<DBCredentials>(
+      'db-credentials',
+    ); // where db-credentials is the secret id
   }
 }
