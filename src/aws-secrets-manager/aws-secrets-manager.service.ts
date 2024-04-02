@@ -81,7 +81,7 @@ export class AWSSecretsService {
 
       return response as T;
     } catch (e: any) {
-      this.logger.error(`Unable to fetch secrets(${e.message})`);
+      this.logger.error(`Unable to fetch secrets (${e.message})`);
     }
   }
 
@@ -95,7 +95,7 @@ export class AWSSecretsService {
 
       return JSON.parse(secret.SecretString) as T;
     } catch (e: any) {
-      this.logger.error(`Unable to fetch secrets(${e.message})`);
+      this.logger.error(`Unable to fetch secrets (${e.message})`);
     }
   }
 }
