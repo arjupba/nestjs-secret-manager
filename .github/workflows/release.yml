@@ -43,7 +43,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   create-release:
-    needs: github_release
+    needs: release
     runs-on: ubuntu-latest
 
     steps:
