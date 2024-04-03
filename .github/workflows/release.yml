@@ -1,27 +1,41 @@
-name: Releases
+name: Release and Changelog
+
 on:
   push:
     branches:
       - main
 
 jobs:
-  changelog:
+  generate-changelog:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - name: Conventional Changelog Action
-        id: changelog
-        uses: TriPSs/conventional-changelog-action@latest
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install conventional-changelog-action
+        uses: peter-evans/conventional-changelog-action@v2
+
+      - name: Generate Changelog
+        id: generate-changelog
+        uses: peter-evans/create-pull-request@v3
         with:
-          github-token: ${{ secrets.PA_TOKEN }}
-          version-file: './package.json,./package-lock.json'
-          skip-on-empty: false
-      - name: create release
+          commit-message: |
+            /^(feat|fix) #.*: .*/
+
+  create-release:
+    needs: generate-changelog
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Create Release
+        id: create_release
         uses: actions/create-release@v1
-        if: ${{ steps.changelog.outputs.skipped == 'false' }}
         env:
-          GITHUB_TOKEN: ${{ secrets.PA_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.changelog.outputs.tag }}
-          release_name: ${{ steps.changelog.outputs.tag }}
-          body: ${{ steps.changelog.outputs.clean_changelog }}
+          tag_name: ${{ steps.generate-changelog.outputs.version }}
+          release_name: Release ${{ steps.generate-changelog.outputs.version }}
+          body: ${{ steps.generate-changelog.outputs.body }}
+          draft: false
+          prerelease: false
