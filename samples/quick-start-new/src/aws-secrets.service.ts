@@ -15,7 +15,7 @@ export class AWSDBCredentialsService {
 
   async getDBCredentials(): Promise<DBCredentials> {
     return await this.secretsRetrieverService.getSecretsByID<DBCredentials>(
-      'db-credentials',
+      'test/sm1',
     ); // where db-credentials is the secret id
   }
 }

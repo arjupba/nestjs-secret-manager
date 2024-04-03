@@ -16,6 +16,11 @@
 
 This module is forked from `https://github.com/razzkumar/nestjs-aws-secrets-manager`. Kudos to [razzkumar](mailto::razzkumar.dev@gmail.com)
 
+Additional features:
+
+1. Support secrets in plane text
+2. Allow the same-named environment variables and secrets.
+
 ## Installation
 
 ```bash
@@ -49,7 +54,7 @@ import { AWSDBCredentialsService } from './aws-secrets.service';
 
 const AWSSecretsManagerProps: AWSSecretsManagerModuleOptions = {
   secretsManager: new SecretsManagerClient({
-    region: 'ap-south-1',
+    region: 'us-east-1',
   }),
 };
 
@@ -86,7 +91,7 @@ export class AWSDBCredentialsService {
 
   async getDBCredentials(): Promise<DBCredentials> {
     return await this.secretsRetrieverService.getSecretsByID<DBCredentials>(
-      'db-credentials',
+      'test/sm1',
     ); // where db-credentials is the secret id
   }
 }
@@ -109,10 +114,10 @@ import { AppController } from './app.controller';
 
 const AWSSecretsManagerProps: AWSSecretsManagerModuleOptions = {
   secretsManager: new SecretsManagerClient({
-    region: 'ap-south-1',
+    region: 'us-east-1',
   }),
   isSetToEnv: true, // set all secrets to env variables which will be available in process.env or @nest/config module
-  secretsSource: { secret1: 'test/sm1', secret2: 'test/sm2' }, // Object with secrets name or ARN as values and required key in environment variable
+  secretsSource: { secret1: 'test/sm1', secret2: 'test/sm2' }, // OR array or secrets name or ARN  [ "db/prod/config" ,"app/prod/config"],
 };
 
 @Module({
@@ -150,7 +155,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           region: configService.get('AWS_REGION'),
         }),
         isSetToEnv: true, // set all secrets to env variables which will be available in process.env or @nest/config module
-        secretsSource: { secret1: 'test/secretId1', secret2: 'test/secretId2' },
+        secretsSource: {
+          secret1: configService.get('AWS_SECRET_ID_1'), // name or array of secret names
+          secret2: configService.get('AWS_SECRET_ID_2'), // name or array of secret names
+        },
         isDebug: configService.get('NODE_ENV') === 'development',
       }),
       inject: [ConfigService],
