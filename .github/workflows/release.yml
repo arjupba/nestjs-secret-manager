@@ -3,7 +3,7 @@ name: Release and Changelog
 on:
   push:
     branches:
-      - 3-enable-cicd
+      - main
 
 jobs:
   release:
@@ -14,6 +14,8 @@ jobs:
         uses: mikepenz/release-changelog-builder-action@v4
         with:
           commitMode: true
+          fromTag: ${{github.event.before}}
+          toTag: ${{github.event.after}}
           configurationJson: |
             {
               "template": "#{{CHANGELOG}}",
