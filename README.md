@@ -18,7 +18,7 @@ This module is forked from `https://github.com/razzkumar/nestjs-aws-secrets-mana
 
 Additional features:
 
-1. Support secrets in plane text
+1. Support secrets in plane text.
 2. Allow the same-named environment variables and secrets.
 
 ## Installation
