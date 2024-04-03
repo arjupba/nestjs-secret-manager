@@ -15,7 +15,8 @@ jobs:
         with:
           github-token: ${{ secrets.PA_TOKEN }}
           version-file: './package.json,./package-lock.json'
-          skip-on-empty: false
+          config-file-path: '.github/config/config.js'
+
       - name: create release
         uses: actions/create-release@v1
         if: ${{ steps.changelog.outputs.skipped == 'false' }}
