@@ -1,6 +1,6 @@
 {
   "name": "nestjs-secret-manager",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "NestJS AWS Secrets Manager",
   "author": "arjupba",
   "license": "MIT",
