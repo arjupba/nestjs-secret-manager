@@ -67,7 +67,14 @@ export class AWSSecretsService {
       const secrets = await Promise.all(resp);
 
       const response = secrets.reduce((acc, secret, index) => {
-        const sec = JSON.parse(secret.SecretString);
+        let sec: string | object;
+
+        try {
+          sec = JSON.parse(secret.SecretString);
+        } catch (error) {
+          sec = secret.SecretString;
+        }
+
         const secretObject = {};
 
         secretObject[keys[index]] = sec;
@@ -81,7 +88,7 @@ export class AWSSecretsService {
 
       return response as T;
     } catch (e: any) {
-      this.logger.error(`Unable to fetch secrets (${e.message})`);
+      this.logger.error(`Unable to fetch secrets(${e.message})`);
     }
   }
 
@@ -93,9 +100,17 @@ export class AWSSecretsService {
 
       const secret = await this.options.secretsManager.send(command);
 
-      return JSON.parse(secret.SecretString) as T;
+      let sec: any;
+
+      try {
+        sec = JSON.parse(secret.SecretString);
+      } catch (error) {
+        sec = secret.SecretString;
+      }
+
+      return sec as T;
     } catch (e: any) {
-      this.logger.error(`Unable to fetch secrets (${e.message})`);
+      this.logger.error(`Unable to fetch secrets(${e.message})`);
     }
   }
 }
