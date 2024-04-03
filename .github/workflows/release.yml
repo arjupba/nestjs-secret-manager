@@ -43,7 +43,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   create-release:
-    needs: generate-changelog
+    needs: github_release
     runs-on: ubuntu-latest
 
     steps:
