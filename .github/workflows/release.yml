@@ -3,25 +3,44 @@ name: Release and Changelog
 on:
   push:
     branches:
-      - main
+      - 3-enable-cicd
 
 jobs:
-  generate-changelog:
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Install conventional-changelog-action
-        uses: peter-evans/conventional-changelog-action@v2
-
-      - name: Generate Changelog
-        id: generate-changelog
-        uses: peter-evans/create-pull-request@v3
+      - name: Build Changelog
+        id: github_release
+        uses: mikepenz/release-changelog-builder-action@v4
         with:
-          commit-message: |
-            /^(feat|fix) #.*: .*/
+          commitMode: true
+          configurationJson: |
+            {
+              "template": "#{{CHANGELOG}}",
+              "categories": [
+                {
+                    "title": "## Feature",
+                    "labels": ["feat", "feature"]
+                },
+                {
+                    "title": "## Fix",
+                    "labels": ["fix", "bug"]
+                },
+                {
+                    "title": "## Other",
+                    "labels": []
+                }
+              ],
+              "label_extractor": [
+                {
+                  "pattern": "^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test) #.*: .*",
+                  "target": "$1"
+                }
+              ],
+            }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   create-release:
     needs: generate-changelog
@@ -34,8 +53,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.generate-changelog.outputs.version }}
-          release_name: Release ${{ steps.generate-changelog.outputs.version }}
-          body: ${{ steps.generate-changelog.outputs.body }}
+          tag_name: ${{ steps.github_release.outputs.changelog }}
+          release_name: Release ${{ steps.github_release.outputs.changelog }}
+          body: ${{ steps.github_release.outputs.changelog }}
           draft: false
           prerelease: false
