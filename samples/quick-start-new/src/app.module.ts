@@ -12,7 +12,7 @@ import { AWSDBCredentialsService } from './aws-secrets.service';
 
 const AWSSecretsManagerProps: AWSSecretsManagerModuleOptions = {
   secretsManager: new SecretsManagerClient({
-    region: 'ap-south-1',
+    region: 'us-east-1',
   }),
 };
 
