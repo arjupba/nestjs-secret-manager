@@ -1,0 +1,13 @@
+#!/bin/sh
+
+npx --no -- commitlint --edit $1 || (
+        echo '😤🏀👋😤 Commit Message Format is not correct! 😤🏀👋😤
+                Make the required changes listed above, add changes and try to commit again.
+                '
+        false;
+)
+
+echo '
+       ✅✅✅✅ Verfied Commit Message Format ✅✅✅✅
+
+       '
