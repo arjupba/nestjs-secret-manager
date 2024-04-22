@@ -1,7 +1,7 @@
 #!/bin/sh
 . "$(dirname "$0")/_/husky.sh"
 
-echo '🤔🤔🤔🤔... Alright.... Trying to build now  Before push. 🤔🤔🤔🤔'
+echo '🤔🤔🤔🤔... Trying to build now  Before push. 🤔🤔🤔🤔'
 
 npm run build ||
 (
@@ -14,7 +14,7 @@ npm run build ||
 # If everything passes... Now we can commit
 echo '
 
-      ✅✅✅✅ You win this time... I am pushing this now. ✅✅✅✅
+      ✅✅✅✅ Build is working fine without any error ✅✅✅✅
 
 
 '
